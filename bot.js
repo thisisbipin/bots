@@ -1,16 +1,19 @@
-require("dotenv").config();
-
-const Discord = require("discord.js");
-const client = new Discord.Client();
-
-client.on("ready", () => {
-  console.log("Our bot is ready to go");
+import express from "express";
+var app = express();
+import bodyParser from "body-parser";
+import axios from "axios";
+import { DISCORD_BOT } from "./bots/discord.js";
+import { TELEGRAM__BOT } from "./bots/telegram.js";
+app.use(express.static("public"));
+app.use(bodyParser.json());
+app.get("/", function (req, res) {
+  res.send("Hello World");
 });
 
-client.on("message", (msg) => {
-  if (msg.content === "hey") {
-    msg.reply("I am working!");
-  }
+app.listen(5000, async () => {
+  console.log("Running at port", 5000);
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+// bot starts
+DISCORD_BOT(app);
+TELEGRAM__BOT(app, axios);

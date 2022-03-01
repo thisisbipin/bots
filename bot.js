@@ -14,6 +14,6 @@ app.listen(5000, async () => {
   console.log("Running at port", 5000);
 });
 
-// bot starts
+// All the bots here
 DISCORD_BOT(app);
 TELEGRAM__BOT(app, axios);

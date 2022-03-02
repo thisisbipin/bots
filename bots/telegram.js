@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
-export function TELEGRAM__BOT(app, axios) {
+export function TELEGRAM__BOT(app, url, axios) {
   dotenv.config();
   const { TELEGRAM_BOT_TOKEN, SERVER_URL } = process.env;
   const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
-  const URI = `/webhook/`;
+  const URI = url + `webhook/`;
   const WEBHOOK_URL = SERVER_URL + URI;
   console.log(WEBHOOK_URL);
   const init = async () => {

@@ -15,5 +15,5 @@ app.listen(5000, async () => {
 });
 
 // All the bots here
-DISCORD_BOT(app);
-TELEGRAM__BOT(app, axios);
+DISCORD_BOT(app, "/discord/");
+// TELEGRAM__BOT(app, "/telegram/", axios);

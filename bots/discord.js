@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 import Discord from "discord.js";
-export function DISCORD_BOT(app) {
+export function DISCORD_BOT(app, url) {
   dotenv.config();
   const display_message = "Discord Not running...";
   const client = new Discord.Client();
-  app.get("/discord/", (req, res) => {
+  app.get(url, (req, res) => {
     res.send(display_message);
   });
 

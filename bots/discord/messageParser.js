@@ -1,12 +1,42 @@
+import dotenv from "dotenv";
 import { EMOTES } from "./EMOTES.js";
-import { logout } from "../discord.js";
+import { channels, logout } from "../discord.js";
 import {
-	IS_TRACKING_LEETCODE_DAILY_CHALLENGE,
 	startDailyChallengeTracking,
 	stopDailyChallengeTracking,
 } from "./leetcode.js";
+import { configdb } from "../db/configdb.js";
 
-export function messageParser(msg) {
+/*----------------------- MESSAGE FUNCTIONS ------------------------- */
+const msgfuncs = {
+	track: async function (msg) {
+		if ((await startDailyChallengeTracking()) == "ALREADY_TRACKING") {
+			msg.reply("I am Tracking you already!");
+			msg.channel.send(EMOTES.Scientist_Medal);
+		} else if (
+			(await startDailyChallengeTracking()) == "TRACKING_STARTED"
+		) {
+			startDailyChallengeTracking();
+			msg.reply("Okay, now you are getting tracked. Tracking Starts!");
+			msg.channel.send(EMOTES.Squirtle_Gun);
+		}
+	},
+	notrack: function (msg) {
+		stopDailyChallengeTracking();
+		msg.reply("Okay, Tracking Stopped!");
+		msg.channel.send(EMOTES.Pika_Wink);
+	},
+
+	stop: async function (msg) {
+		await msg.reply("Stopped!");
+		await configdb.update("IS_BOT_ON", false);
+		await logout();
+	},
+};
+
+/*----------------------- EXPORTS ------------------------- */
+export function messageParser(msg, client) {
+	console.log(msg);
 	msg.content = msg.content.substr(1); //remove bot trigger character
 
 	switch (msg.content) {
@@ -15,15 +45,15 @@ export function messageParser(msg) {
 			break;
 
 		case "track":
-			track(msg);
+			msgfuncs.track(msg);
 			break;
 
 		case "notrack":
-			notrack(msg);
+			msgfuncs.notrack(msg);
 			break;
 
 		case "stop":
-			stop(msg);
+			msgfuncs.stop(msg);
 			break;
 
 		default:
@@ -32,25 +62,8 @@ export function messageParser(msg) {
 	}
 }
 
-function track(msg) {
-	if (IS_TRACKING_LEETCODE_DAILY_CHALLENGE == true) {
-		msg.reply("I am Tracking you already!");
-		msg.channel.send(EMOTES.Scientist_Medal);
-	} else if (IS_TRACKING_LEETCODE_DAILY_CHALLENGE == false) {
-		startDailyChallengeTracking();
-		msg.reply("Okay, now you are getting tracked. Tracking Starts!");
-		msg.channel.send(EMOTES.Squirtle_Gun);
-	}
-}
-
-function notrack(msg) {
-	stopDailyChallengeTracking();
-	msg.reply("Okay, Tracking Stopped!");
-	msg.channel.send(EMOTES.Pika_Wink);
-}
-
-async function stop(msg) {
-	await msg.reply("Stopped!");
-	await logout();
-	// throw new Error("=> Bot was stopped manually.");
+export async function notify(_channel, message) {
+	dotenv.config();
+	const current_channel_ID = process.env.CHANNEL_REMINDERS;
+	channels.get(current_channel_ID).send(message);
 }

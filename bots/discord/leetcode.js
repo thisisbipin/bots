@@ -1,30 +1,20 @@
+import dotenv from "dotenv";
 import { LeetCode } from "leetcode-query";
-import nedb from "nedb";
-
+import { notify } from "./messageParser.js";
+import { configdb } from "../db/configdb.js";
+import { EMOTES } from "./EMOTES.js";
+import { randomfrom } from "../tools/tools.js";
 const leetcode = new LeetCode();
-const database = new nedb("config.db");
-database.loadDatabase();
+dotenv.config();
 
-export let IS_TRACKING_LEETCODE_DAILY_CHALLENGE = false;
+let IS_TRACKING_LEETCODE_DAILY_CHALLENGE = await configdb.get(
+	"IS_TRACKING_LEETCODE_DAILY_CHALLENGE"
+);
 let calltimer;
 let cached_user = {
 	username: "thisisbipin",
 	user: await leetcode.get_user("thisisbipin"),
 };
-//Initiazlization
-database.find(
-	{ property: "IS_TRACKING_LEETCODE_DAILY_CHALLENGE" },
-	(err, data) => {
-		IS_TRACKING_LEETCODE_DAILY_CHALLENGE = data[0].value;
-
-		if (IS_TRACKING_LEETCODE_DAILY_CHALLENGE == true) {
-			console.log("=> Auto Calling startDailyChallengeTracking()");
-			startDailyChallengeTracking();
-		}
-	}
-);
-
-// console.log(cached_user.user);
 
 async function isuserchached(_username) {
 	if (cached_user.username != _username)
@@ -50,58 +40,54 @@ function callEveryMidNight() {
 	/* @log */ console.log("=> Timer set for Midnight");
 }
 
-function isDailyChallengeDone(nowTime) {
+async function isDailyChallengeDone(nowTime) {
 	let TIME_DIFF_OF_LAST_SUB =
 		nowTime - getLatestSubmissionTime(cached_user.username);
 	let TIME_19_HOURS = (25200 + 43200) * 1000;
+
+	let user_id = process.env.USER_ID;
+	let reminder_message = {
+		msg: `<@${user_id}>, Yay! You completed today's Daily Challenge`,
+		emote: EMOTES[randomfrom(EMOTES.COOL)],
+	};
+
 	if (TIME_DIFF_OF_LAST_SUB > TIME_19_HOURS)
-		return {
-			code: "NOTDONE",
-			msg: "Oh No! You forgot to do the Daily Challenge!",
+		// if didn't completed the challenge then change the message
+		reminder_message = {
+			msg: `<@${user_id}>, Oh! No you Forgot to do the Daily Challenge!! `,
+			emote: EMOTES[randomfrom[EMOTES.ANGRY]],
 		};
-	else
-		return {
-			code: "DONE",
-			msg: "Yay! You did it",
-		};
+	// notify("CHANNEL_REMINDERS", reminder_message.msg);
+	notify("CHANNEL_REMINDERS", reminder_message.emote);
 }
 
 /*----------------  EXPORTS   --------------*/
-export function startDailyChallengeTracking() {
-	if (IS_TRACKING_LEETCODE_DAILY_CHALLENGE === true)
-		return "ALREADY_TRACKING";
-	const config = {
-		property: "IS_TRACKING_LEETCODE_DAILY_CHALLENGE",
-		value: true,
-	};
-	database.update(
-		{ property: "IS_TRACKING_LEETCODE_DAILY_CHALLENGE" },
-		config,
-		(err, data) =>
-			console.log("=> Database value was successfully set as", config)
-	);
-	IS_TRACKING_LEETCODE_DAILY_CHALLENGE = true;
-	callEveryMidNight();
-	return "TRACKING_STARTED";
-}
-export function stopDailyChallengeTracking(_username) {
-	if (IS_TRACKING_LEETCODE_DAILY_CHALLENGE !== false) {
-		// await isuserchached(_username);
-		/* @log */ console.log("=> Stopping Tracking");
-		clearTimeout(calltimer);
-		const config = {
-			property: "IS_TRACKING_LEETCODE_DAILY_CHALLENGE",
-			value: false,
-		};
-		database.update(
-			{ property: "IS_TRACKING_LEETCODE_DAILY_CHALLENGE" },
-			config,
-			(err, data) =>
-				console.log("=> Database value was successfully set as", config)
-		);
-		IS_TRACKING_LEETCODE_DAILY_CHALLENGE = false;
-	}
+export async function startDailyChallengeTracking() {
+	return new Promise(async (resolve, reject) => {
+		if (IS_TRACKING_LEETCODE_DAILY_CHALLENGE === true)
+			resolve("ALREADY_TRACKING");
+		else
+			await configdb.update("IS_TRACKING_LEETCODE_DAILY_CHALLENGE", true); // update in the database
 
+		IS_TRACKING_LEETCODE_DAILY_CHALLENGE = await configdb.get(
+			"IS_TRACKING_LEETCODE_DAILY_CHALLENGE"
+		);
+		callEveryMidNight();
+		return resolve("TRACKING_STARTED");
+	});
+}
+export async function stopDailyChallengeTracking(_username) {
+	if (IS_TRACKING_LEETCODE_DAILY_CHALLENGE !== false) {
+		/* @log */ console.log("=> Stopping Tracking");
+
+		clearTimeout(calltimer);
+
+		await configdb.update("IS_TRACKING_LEETCODE_DAILY_CHALLENGE", false);
+
+		IS_TRACKING_LEETCODE_DAILY_CHALLENGE = await configdb.get(
+			"IS_TRACKING_LEETCODE_DAILY_CHALLENGE"
+		);
+	}
 	return "TRACKING_STOPPED";
 }
 export async function getDetailsOf(_username) {

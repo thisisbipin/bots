@@ -52,7 +52,9 @@ class ConfigDB {
 				} else {
 					/* @log */ console.log(
 						this.LOG_SYMBOL + `Data was fetched for`,
-						id
+						id,
+						":",
+						data[0].value
 					);
 					resolve(data[0].value);
 				}

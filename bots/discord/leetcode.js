@@ -12,8 +12,8 @@ let IS_TRACKING_LEETCODE_DAILY_CHALLENGE = await configdb.get(
 );
 let calltimer;
 let cached_user = {
-	username: "thisisbipin",
-	user: await leetcode.get_user("thisisbipin"),
+	username: process.env.LEETCODE_USERNAME,
+	user: await leetcode.get_user(process.env.LEETCODE_USERNAME),
 };
 
 async function isuserchached(_username) {
@@ -47,14 +47,14 @@ async function isDailyChallengeDone(nowTime) {
 
 	let user_id = process.env.USER_ID;
 	let reminder_message = {
-		msg: `<@${user_id}>, Yay! You completed today's Daily Challenge`,
+		msg: `<@${ user_id }>, Yay! You completed today's Daily Challenge`,
 		emote: EMOTES[randomfrom(EMOTES.COOL)],
 	};
 
 	if (TIME_DIFF_OF_LAST_SUB > TIME_19_HOURS)
 		// if didn't completed the challenge then change the message
 		reminder_message = {
-			msg: `<@${user_id}>, Oh! No you Forgot to do the Daily Challenge!! `,
+			msg: `<@${ user_id }>, Oh! No you Forgot to do the Daily Challenge!! `,
 			emote: EMOTES[randomfrom[EMOTES.ANGRY]],
 		};
 	// notify("CHANNEL_REMINDERS", reminder_message.msg);
@@ -92,9 +92,9 @@ export async function stopDailyChallengeTracking(_username) {
 }
 export async function getDetailsOf(_username) {
 	/* @log */ console.log(
-		"=> User Data was was fetched for ",
-		cached_user.user.matchedUser.username
-	);
+	"=> User Data was was fetched for ",
+	cached_user.user.matchedUser.username
+);
 	return cached_user.user;
 }
 

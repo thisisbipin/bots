@@ -1,9 +1,10 @@
 import express from "express";
-var app = express();
+const app = express();
 import bodyParser from "body-parser";
 import { DISCORD_BOT } from "./bots/discord.js";
 import { startDailyChallengeTracking } from "./bots/discord/leetcode.js";
 import { configdb } from "./bots/db/configdb.js";
+import { set_webHook_reciever } from "./autopull.js";
 
 app.use(express.static("public"));
 app.use(bodyParser.json());
@@ -39,3 +40,4 @@ if ((await configdb.get("IS_TRACKING_LEETCODE_DAILY_CHALLENGE")) == true)
 app.listen(5000, async () => {
 	console.log("Running at port", 5000);
 });
+set_webHook_reciever(app);

@@ -1,31 +1,32 @@
 import dotenv from "dotenv";
 import Discord from "discord.js";
+
+import { messageParser } from "./discord/messageParser.js";
+const BOT_TRIGGER = "\\";
+let client = new Discord.Client();
+export let channels = client.channels.cache; //set the channels
+
 export function DISCORD_BOT(app, url) {
-  dotenv.config();
-  const display_message = "Discord Not running...";
-  const client = new Discord.Client();
-  app.get(url, (req, res) => {
-    res.send(display_message);
-  });
+	dotenv.config();
 
-  client.on("ready", () => {
-    console.log("=> Our Discord bot is ready to go..");
-  });
+	return new Promise((resolve, reject) => {
+		client.login(process.env.DISCORD_BOT_TOKEN);
 
-  client.on("message", (msg) => {
-    if (msg.content === "hey") {
-      msg.reply("I am working!");
-    }
-    if (msg.content === "!stop") {
-      stopBot(msg);
-    }
-  });
+		app.get(url, (req, res) => {
+			res.send("Discord Running...");
+		});
 
-  async function stopBot(msg) {
-    await msg.reply("Stopped!");
-    throw new Error("Bot stopped manually!!");
-  }
+		client.on("ready", () => {
+			resolve("Started!");
+			console.log("=> Our Discord bot is ready to go..");
+		});
 
-  client.login(process.env.DISCORD_BOT_TOKEN);
-  //   1646105400000 + 86400000;
+		client.on("message", (msg) => {
+			console.log(msg.content);
+			if (msg.content[0] == BOT_TRIGGER) messageParser(msg, client);
+		});
+	});
+}
+export async function logout() {
+	await client.off();
 }

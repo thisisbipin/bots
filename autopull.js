@@ -8,7 +8,7 @@ export function set_webHook_reciever(app) {
     app.post('/' + process.env.WEBHOOK_URL, (req, res) => {
         console.log('trying to perform post');
         console.log(req.body);
-        exec("git pull", (error, stdout, stderr) => {
+        exec("git pull origin master", (error, stdout, stderr) => {
             console.log(`=> GIT status: ${ stdout }`);
         });
         res.send("OK");

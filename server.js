@@ -1,5 +1,6 @@
 import express from "express";
 const app = express();
+import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import { DISCORD_BOT } from "./bots/discord.js";
 import { startDailyChallengeTracking } from "./bots/discord/leetcode.js";
@@ -51,6 +52,7 @@ app.listen(5000, async () => {
 set_webHook_reciever(app);
 
 app.get("/keepawake", (req, res) => {
+	dotenv.config();
 	keepawake(process.env.SELF_URL, true);
 	res.send("Okay Now the project will be awake");
 });

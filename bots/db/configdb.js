@@ -1,17 +1,21 @@
 import nedb from "nedb";
 
-class ConfigDB {
-	LOG_SYMBOL = "-> ";
-	DATABASE_URL = "./databases/config.db";
+class DB {
+	LOG_SYMBOL = "->";
 	messages = {
 		success: "DONE",
 		failure: "See Database Logs",
 	};
-	constructor() {
-		this.database = new nedb(this.DATABASE_URL);
+	constructor(name, DATABASE_URL) {
+		this.databasename = name;
+		this.database = new nedb(DATABASE_URL);
 		this.database.loadDatabase();
 		/* @log */ console.log(
-			this.LOG_SYMBOL + `Config DB loaded successfully`
+			this.LOG_SYMBOL +
+				" ( " +
+				this.databasename +
+				" ) " +
+				`DB loaded successfully`
 		);
 	}
 	insert = async (id, value) => {
@@ -20,12 +24,20 @@ class ConfigDB {
 			this.database.insert(key_value, (err, data) => {
 				if (err != null) {
 					/* @log */ console.log(
-						this.LOG_SYMBOL + `There was some error - ` + err
+						this.LOG_SYMBOL +
+							" ( " +
+							this.databasename +
+							" ) " +
+							`There was some error - ` +
+							err
 					);
 					reject(this.messages.failure);
 				} else {
 					/* @log */ console.log(
 						this.LOG_SYMBOL +
+							" ( " +
+							this.databasename +
+							" ) " +
 							`Data was Inserted Successfully` +
 							key_value
 					);
@@ -40,18 +52,29 @@ class ConfigDB {
 			this.database.find({ property: id }, async (err, data) => {
 				if (err != null) {
 					/* @log */ console.log(
-						this.LOG_SYMBOL + `Error Occured for `,
-						id
+						this.LOG_SYMBOL +
+							" ( " +
+							this.databasename +
+							" ) " +
+							`Error Occured for ` +
+							id
 					);
 					reject(this.messages.failure);
 				} else if (data.length == 0) {
 					reject(
 						this.LOG_SYMBOL +
+							" ( " +
+							this.databasename +
+							" ) " +
 							`Data for the Given ID: ${id} was not found`
 					);
 				} else {
 					/* @log */ console.log(
-						this.LOG_SYMBOL + `Data was fetched for`,
+						this.LOG_SYMBOL +
+							" ( " +
+							this.databasename +
+							" ) " +
+							`Data was fetched for`,
 						id,
 						":",
 						data[0].value
@@ -72,12 +95,21 @@ class ConfigDB {
 				(err, data) => {
 					if (err != null) {
 						/* @log */ console.log(
-							this.LOG_SYMBOL + `There was some error - ` + err
+							this.LOG_SYMBOL +
+								" ( " +
+								this.databasename +
+								" ) " +
+								`There was some error - ` +
+								err
 						);
 						reject(this.messages.failure);
 					} else {
 						/* @log */ console.log(
-							this.LOG_SYMBOL + `Data was successfully set as`,
+							this.LOG_SYMBOL +
+								" ( " +
+								this.databasename +
+								" ) " +
+								`Data was successfully set as`,
 							updated_value
 						);
 						resolve(this.messages.success);
@@ -89,4 +121,5 @@ class ConfigDB {
 	};
 }
 
-export const configdb = new ConfigDB();
+export const configdb = new DB("config", "./databases/config.db");
+export const logsdb = new DB("logs", "./databases/logs.db");

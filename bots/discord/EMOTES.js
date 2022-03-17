@@ -34,6 +34,7 @@ export const EMOTES = {
 	rainbow_neko: "<a:rainbow_neko:953250774803152936>",
 	mysl: "<a:mysl:953250771871346688>",
 	reddot: "<a:reddot:953250766687203338>",
+	alert: "<a:alert:953979914892222464>",
 
 	HAPPY: ["Pika_Happy", "Pika_Wink"],
 	SAD: ["Prof_Oak", "Bulbapepe"],

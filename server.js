@@ -5,6 +5,8 @@ import { DISCORD_BOT } from "./bots/discord.js";
 import { startDailyChallengeTracking } from "./bots/discord/leetcode.js";
 import { configdb } from "./bots/db/configdb.js";
 import { set_webHook_reciever } from "./autopull.js";
+import { keepawake, stopsite } from "./wake.js";
+import { notify } from "./bots/discord/messageParser.js";
 
 app.use(express.static("public"));
 app.use(bodyParser.json());
@@ -29,6 +31,10 @@ async function START_BOTS() {
 
 	await DISCORD_BOT(app, "/discord/");
 	// TELEGRAM__BOT(app, "/telegram/", axios);
+
+	setTimeout(() => {
+		notify("CHANNEL_REMINDERS", "Bots were started");
+	}, 5000); //manual delay of 5s
 }
 
 //Initialization
@@ -40,4 +46,17 @@ if ((await configdb.get("IS_TRACKING_LEETCODE_DAILY_CHALLENGE")) == true)
 app.listen(5000, async () => {
 	console.log("Running at port", 5000);
 });
+
+// wehookereciever
 set_webHook_reciever(app);
+
+app.get("/keepawake", (req, res) => {
+	keepawake(process.env.SELF_URL, true);
+	res.send("Okay Now the project will be awake");
+});
+app.get("/stopsite", (req, res) => {
+	res.send(stopsite(true));
+});
+
+//for by default keeping awake
+keepawake();

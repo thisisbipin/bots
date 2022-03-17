@@ -42,22 +42,22 @@ function callEveryMidNight() {
 
 async function isDailyChallengeDone(nowTime) {
 	let TIME_DIFF_OF_LAST_SUB =
-		nowTime - getLatestSubmissionTime(cached_user.username);
+		nowTime - (await getLatestSubmissionTime(cached_user.username));
 	let TIME_19_HOURS = (25200 + 43200) * 1000;
 
 	let user_id = process.env.USER_ID;
 	let reminder_message = {
-		msg: `<@${ user_id }>, Yay! You completed today's Daily Challenge`,
+		msg: `<@${user_id}>, Yay! You completed today's Daily Challenge`,
 		emote: EMOTES[randomfrom(EMOTES.COOL)],
 	};
 
 	if (TIME_DIFF_OF_LAST_SUB > TIME_19_HOURS)
 		// if didn't completed the challenge then change the message
 		reminder_message = {
-			msg: `<@${ user_id }>, Oh! No you Forgot to do the Daily Challenge!! `,
-			emote: EMOTES[randomfrom[EMOTES.ANGRY]],
+			msg: `<@${user_id}>, Oh! ${EMOTES.alert} No you **Forgot** to do the Daily Challenge!! `,
+			emote: EMOTES[randomfrom(EMOTES.ANGRY)],
 		};
-	// notify("CHANNEL_REMINDERS", reminder_message.msg);
+	notify("CHANNEL_REMINDERS", reminder_message.msg);
 	notify("CHANNEL_REMINDERS", reminder_message.emote);
 }
 
@@ -92,9 +92,9 @@ export async function stopDailyChallengeTracking(_username) {
 }
 export async function getDetailsOf(_username) {
 	/* @log */ console.log(
-	"=> User Data was was fetched for ",
-	cached_user.user.matchedUser.username
-);
+		"=> User Data was was fetched for ",
+		cached_user.user.matchedUser.username
+	);
 	return cached_user.user;
 }
 

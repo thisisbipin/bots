@@ -10,13 +10,12 @@ import { configdb } from "../db/configdb.js";
 /*----------------------- MESSAGE FUNCTIONS ------------------------- */
 const msgfuncs = {
 	track: async function (msg) {
-		if ((await startDailyChallengeTracking()) == "ALREADY_TRACKING") {
+		const status_of_tracking = await startDailyChallengeTracking();
+		if (status_of_tracking == "ALREADY_TRACKING") {
 			msg.reply("I am Tracking you already!");
 			msg.channel.send(EMOTES.Scientist_Medal);
-		} else if (
-			(await startDailyChallengeTracking()) == "TRACKING_STARTED"
-		) {
-			startDailyChallengeTracking();
+		} else if (status_of_tracking == "TRACKING_STARTED") {
+			// startDailyChallengeTracking();
 			msg.reply("Okay, now you are getting tracked. Tracking Starts!");
 			msg.channel.send(EMOTES.Squirtle_Gun);
 		}
@@ -36,7 +35,7 @@ const msgfuncs = {
 
 /*----------------------- EXPORTS ------------------------- */
 export function messageParser(msg, client) {
-	console.log(msg);
+	// console.log(msg);
 	msg.content = msg.content.substr(1); //remove bot trigger character
 
 	switch (msg.content) {
